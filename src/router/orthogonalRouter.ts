@@ -1,15 +1,22 @@
+// Generates a Manhattan-style orthogonal path between two points while avoiding obstacles
+// and respecting optional waypoint turns used by the custom edge behavior.
 import type { Point, Obstacle, GridPoint, SearchState, OrthogonalRouteOptions } from '../interface/OrthogonalRouter';
 
 const pointKey = ({ x, y }: Point) => `${x}:${y}`;
 
-const samePoint = (first: Point, second: Point) => first.x === second.x && first.y === second.y;
+const samePoint = (first: Point, second: Point) => {
+  return first.x === second.x && first.y === second.y;
+};
 
-const isInside = (point: Point, obstacle: Obstacle) =>
-  point.x > obstacle.x && point.x < obstacle.x + obstacle.width && point.y > obstacle.y && point.y < obstacle.y + obstacle.height;
+const isInside = (point: Point, obstacle: Obstacle) => {
+  return point.x > obstacle.x && point.x < obstacle.x + obstacle.width && point.y > obstacle.y && point.y < obstacle.y + obstacle.height;
+};
 
 const segmentIntersectsRect = (first: Point, second: Point, obstacle: Obstacle) => {
   if (first.x === second.x) {
-    if (first.x <= obstacle.x || first.x >= obstacle.x + obstacle.width) return false;
+    if (first.x <= obstacle.x || first.x >= obstacle.x + obstacle.width) {
+      return false;
+    }
 
     const segmentTop = Math.min(first.y, second.y);
     const segmentBottom = Math.max(first.y, second.y);
@@ -17,7 +24,9 @@ const segmentIntersectsRect = (first: Point, second: Point, obstacle: Obstacle) 
   }
 
   if (first.y === second.y) {
-    if (first.y <= obstacle.y || first.y >= obstacle.y + obstacle.height) return false;
+    if (first.y <= obstacle.y || first.y >= obstacle.y + obstacle.height) {
+      return false;
+    }
 
     const segmentLeft = Math.min(first.x, second.x);
     const segmentRight = Math.max(first.x, second.x);
@@ -32,11 +41,15 @@ const isClear = (first: Point, second: Point, obstacles: Obstacle[]) =>
 
 const distance = (first: Point, second: Point) => Math.abs(first.x - second.x) + Math.abs(first.y - second.y);
 
-const directionBetween = (first: Point, second: Point): 'horizontal' | 'vertical' => (first.x === second.x ? 'vertical' : 'horizontal');
+const directionBetween = (first: Point, second: Point): 'horizontal' | 'vertical' => {
+  return first.x === second.x ? 'vertical' : 'horizontal';
+};
 
 const addPoint = (points: Map<string, GridPoint>, point: Point) => {
   const key = pointKey(point);
-  if (!points.has(key)) points.set(key, { ...point, key });
+  if (!points.has(key)) {
+    points.set(key, { ...point, key });
+  }
 };
 
 const simplifyPath = (points: Point[]) => {
@@ -46,7 +59,9 @@ const simplifyPath = (points: Point[]) => {
     const previous = simplified[simplified.length - 1];
     const beforePrevious = simplified[simplified.length - 2];
 
-    if (previous && samePoint(previous, point)) continue;
+    if (previous && samePoint(previous, point)) {
+      continue;
+    }
 
     if (
       beforePrevious &&
@@ -64,7 +79,9 @@ const simplifyPath = (points: Point[]) => {
 };
 
 export const mergeCollinearPoints = (points: Point[]) => {
-  if (points.length < 2) return points;
+  if (points.length < 2) {
+    return points;
+  }
 
   const merged: Point[] = [];
   let runStart = points[0];
@@ -88,7 +105,9 @@ export const mergeCollinearPoints = (points: Point[]) => {
   for (let index = 1; index < points.length; index += 1) {
     const start = points[index - 1];
     const end = points[index];
-    if (!start || !end) continue;
+    if (!start || !end) {
+      continue;
+    }
 
     const direction = start.x === end.x ? 'vertical' : start.y === end.y ? 'horizontal' : undefined;
     if (!direction) {
@@ -121,6 +140,7 @@ export const mergeCollinearPoints = (points: Point[]) => {
   }
 
   finishRun();
+
   return merged;
 };
 
@@ -131,7 +151,9 @@ const routeBetween = (
   turnPenalty: number,
   preferredFirstDirection?: 'horizontal' | 'vertical',
 ): Point[] => {
-  if (samePoint(source, target)) return [source];
+  if (samePoint(source, target)) {
+    return [source];
+  }
 
   const xCoordinates = new Set([source.x, target.x]);
   const yCoordinates = new Set([source.y, target.y]);
@@ -145,26 +167,40 @@ const routeBetween = (
 
   const grid = new Map<string, GridPoint>();
   for (const x of xCoordinates) {
-    for (const y of yCoordinates) addPoint(grid, { x, y });
+    for (const y of yCoordinates) {
+      addPoint(grid, { x, y });
+    }
   }
 
   const neighbors = new Map<string, GridPoint[]>();
-  for (const point of grid.values()) neighbors.set(point.key, []);
+  for (const point of grid.values()) {
+    neighbors.set(point.key, []);
+  }
 
   for (const point of grid.values()) {
     for (const candidate of grid.values()) {
-      if (point.key === candidate.key) continue;
-      if (point.x !== candidate.x && point.y !== candidate.y) continue;
-      if (!isClear(point, candidate, obstacles)) continue;
+      if (point.key === candidate.key) {
+        continue;
+      }
+      if (point.x !== candidate.x && point.y !== candidate.y) {
+        continue;
+      }
+      if (!isClear(point, candidate, obstacles)) {
+        continue;
+      }
 
       const points = neighbors.get(point.key);
-      if (points) points.push(candidate);
+      if (points) {
+        points.push(candidate);
+      }
     }
   }
 
   const start = grid.get(pointKey(source));
   const end = grid.get(pointKey(target));
-  if (!start || !end) return [source, target];
+  if (!start || !end) {
+    return [source, target];
+  }
 
   const open: SearchState[] = [{ point: start, direction: null, cost: 0, estimate: distance(source, target), path: [start] }];
   const bestCosts = new Map<string, number>();
@@ -173,14 +209,20 @@ const routeBetween = (
     open.sort((first, second) => first.estimate - second.estimate);
     const current = open.shift()!;
 
-    if (current.point.key === end.key) return current.path;
+    if (current.point.key === end.key) {
+      return current.path;
+    }
 
     const stateKey = `${current.point.key}:${current.direction ?? 'none'}`;
-    if ((bestCosts.get(stateKey) ?? Infinity) < current.cost) continue;
+    if ((bestCosts.get(stateKey) ?? Infinity) < current.cost) {
+      continue;
+    }
     bestCosts.set(stateKey, current.cost);
 
     const nextNeighbors = [...(neighbors.get(current.point.key) ?? [])].sort((first, second) => {
-      if (current.direction || !preferredFirstDirection) return 0;
+      if (current.direction || !preferredFirstDirection) {
+        return 0;
+      }
 
       const firstDirection = directionBetween(current.point, first);
       const secondDirection = directionBetween(current.point, second);
@@ -193,7 +235,9 @@ const routeBetween = (
         current.cost + distance(current.point, neighbor) + (current.direction && current.direction !== direction ? turnPenalty : 0);
       const neighborKey = `${neighbor.key}:${direction}`;
 
-      if (nextCost >= (bestCosts.get(neighborKey) ?? Infinity)) continue;
+      if (nextCost >= (bestCosts.get(neighborKey) ?? Infinity)) {
+        continue;
+      }
 
       open.push({
         point: neighbor,
@@ -225,7 +269,9 @@ export const routeOrthogonal = ({
   const routePoints = [source, ...waypoints, target];
   const segments = routePoints.slice(0, -1).map((point, index) => {
     const nextPoint = routePoints[index + 1];
-    if (!nextPoint) return [];
+    if (!nextPoint) {
+      return [];
+    }
 
     const isFirstSegment = index === 0;
     const isLastSegment = index === routePoints.length - 2;

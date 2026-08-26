@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <VueFlow :nodes="nodes" :edges="edges" @node-drag-stop="onNodeDragStop">
+    <VueFlow :nodes="nodes" :edges="edges" :only-render-visible-elements="true" @node-drag-stop="onNodeDragStop">
       <template #node-special="specialNodeProps">
         <SpecialNode v-bind="specialNodeProps" />
       </template>
@@ -23,8 +23,8 @@ import type { Edge, Node } from '@vue-flow/core';
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core';
 import type { OrthogonalEdgeData } from './interface/OrthogonalRouter.ts';
 
-import SpecialNode from '../components/SpecialNode.vue';
-import SpecialEdge from '../components/SpecialEdge.vue';
+import SpecialNode from './components/SpecialNode.vue';
+import SpecialEdge from './components/SpecialEdge.vue';
 
 const nodes = ref<Node[]>([
   {
@@ -72,8 +72,8 @@ const edges = ref<Edge<OrthogonalEdgeData>[]>([
     type: 'special',
     source: '3',
     target: '4',
+    label: 'Special route',
     data: {
-      hello: 'world',
       clearance: 20,
     },
   },
