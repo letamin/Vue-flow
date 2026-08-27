@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { resolveLabelProgressForPath } from '../composables/useSpecialEdge';
 import { labelSegmentOrientation, pointForLabel, segmentOrientation } from '../services/specialEdgeGeometry';
 
 describe('special edge geometry', () => {
@@ -25,5 +26,17 @@ describe('special edge geometry', () => {
     expect(segmentOrientation(path[0]!, path[1]!)).toBe('horizontal');
     expect(labelSegmentOrientation(path)).toBe('horizontal');
     expect(pointForLabel(path, 18)).toEqual({ x: 60, y: -18 });
+  });
+
+  it('keeps the label in the longest clear segment when handles are present', () => {
+    const pathLength = 100;
+    const handles = [
+      { x: 30, y: 0 },
+      { x: 70, y: 0 },
+    ];
+
+    const progress = resolveLabelProgressForPath(pathLength, handles, (distance) => ({ x: distance, y: 0 }), 25, 18);
+
+    expect(progress).toBeCloseTo(0.5, 5);
   });
 });

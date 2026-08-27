@@ -1,9 +1,11 @@
 <template>
-  <path :id="id" :style="style" class="vue-flow__edge-path" :d="svgPath" :marker-end="markerEnd" />
+  <path ref="visualPath" :id="id" :style="style" class="vue-flow__edge-path" :d="svgPath" :marker-end="markerEnd" />
+  <path class="special-edge__interaction-path" :d="svgPath" :stroke-width="interactionStrokeWidth" @dblclick="createHandle" />
 
   <EdgeLabelRenderer>
     <div
       v-if="props.label"
+      ref="labelElement"
       class="edge-label nodrag nopan"
       :style="{
         position: 'absolute',
@@ -13,34 +15,17 @@
       {{ props.label }}
     </div>
 
-    <button
-      v-for="(waypoint, index) in waypointHandles"
-      :key="`waypoint-${index}`"
-      class="edge-waypoint-handle edge-waypoint-handle--active nodrag nopan"
-      :style="handleStyle(waypoint)"
-      type="button"
-      aria-label="Move edge waypoint"
-      @pointerdown="startWaypointDrag(index, $event)"
-    />
-
-    <button
-      v-for="handle in midpointHandles"
-      :key="`segment-${handle.segmentIndex}`"
-      class="edge-waypoint-handle edge-waypoint-handle--midpoint nodrag nopan"
-      :style="handleStyle(handle)"
-      type="button"
-      aria-label="Move edge segment"
-      @pointerdown="startSegmentDrag(handle.segmentIndex, $event)"
-    />
-
-    <button
-      v-if="segmentDragHandle"
-      class="edge-waypoint-handle edge-waypoint-handle--dragging nodrag nopan"
-      :style="handleStyle(segmentDragHandle)"
-      type="button"
-      aria-hidden="true"
-      tabindex="-1"
-    />
+    <template v-if="props.selected">
+      <button
+        v-for="(handle, index) in handlePoints"
+        :key="`edge-handle-${index}`"
+        class="edge-waypoint-handle nodrag nopan"
+        :style="handleStyle(handle)"
+        type="button"
+        aria-label="Move edge handle"
+        @pointerdown="startHandleDrag(index, $event)"
+      />
+    </template>
   </EdgeLabelRenderer>
 </template>
 
@@ -51,8 +36,7 @@ import { useSpecialEdge } from '../composables/useSpecialEdge';
 
 const props = defineProps<EdgeProps<OrthogonalEdgeData>>();
 
-const { segmentDragHandle, svgPath, waypointHandles, midpointHandles, labelStyle, handleStyle, startSegmentDrag, startWaypointDrag } =
-  useSpecialEdge(props);
+const { handlePoints, svgPath, labelStyle, handleStyle, interactionStrokeWidth, createHandle, startHandleDrag } = useSpecialEdge(props);
 </script>
 
 <script lang="ts">
@@ -62,6 +46,13 @@ export default {
 </script>
 
 <style>
+.special-edge__interaction-path {
+  fill: none;
+  stroke: transparent;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
 .edge-waypoint-handle {
   width: 10px;
   height: 10px;
@@ -69,42 +60,12 @@ export default {
   border: 2px solid #f05f75;
   border-radius: 50%;
   background: white;
-  cursor: crosshair;
+  cursor: grab;
   box-sizing: border-box;
-  transition:
-    width 100ms ease,
-    height 100ms ease,
-    background-color 100ms ease;
 }
 
-.edge-waypoint-handle:hover {
-  width: 14px;
-  height: 14px;
-  background: #f05f75;
-}
-
-.edge-waypoint-handle--active {
-  background: #f05f75;
-}
-
-.edge-waypoint-handle--midpoint {
-  background: white;
-}
-
-.edge-waypoint-handle--midpoint:hover {
-  background: #f05f75;
-}
-
-.edge-waypoint-handle--dragging {
-  width: 14px;
-  height: 14px;
-  border-color: #d93654;
-  background: #f05f75;
+.edge-waypoint-handle:active {
   cursor: grabbing;
-  pointer-events: none;
-  box-shadow:
-    0 0 0 3px rgb(240 95 117 / 20%),
-    0 2px 6px rgb(0 0 0 / 20%);
 }
 
 .edge-label {

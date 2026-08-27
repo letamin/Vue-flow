@@ -23,6 +23,7 @@ export interface OrthogonalEdgeData {
   waypoints?: Point[];
   clearance?: number;
   normalizeRevision?: number;
+  handles?: Point[];
 }
 
 export interface GridPoint extends Point {
