@@ -21,3 +21,13 @@ export interface WaypointDragState {
   pointerStart: Point;
   hasMoved: boolean;
 }
+
+export interface DraggingHandle {
+  index: number;
+  point: Point;
+}
+
+export interface PathLocation {
+  point: Point;
+  distance: number;
+}

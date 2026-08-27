@@ -20,10 +20,10 @@ export interface OrthogonalRouteOptions {
 }
 
 export interface OrthogonalEdgeData {
-  hello?: string;
   waypoints?: Point[];
   clearance?: number;
   normalizeRevision?: number;
+  handles?: Point[];
 }
 
 export interface GridPoint extends Point {

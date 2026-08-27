@@ -38,6 +38,7 @@ export default defineConfigWithVueTs(
       'no-var': 'error',
       'prefer-arrow-callback': 'error',
       'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      curly: ['error', 'all'],
     },
   },
 );
