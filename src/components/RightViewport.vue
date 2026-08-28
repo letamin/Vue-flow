@@ -17,9 +17,6 @@
         <template #edge-special="specialEdgeProps">
           <SpecialEdge v-bind="{ ...specialEdgeProps, style: specialEdgeProps.style ?? {} }" />
         </template>
-        <template #connection-line="connectionLineProps">
-          <CustomConnectionLine v-bind="{ ...connectionLineProps, boundary }" />
-        </template>
       </VueFlow>
     </div>
   </main>
@@ -31,7 +28,6 @@ import { VueFlow, type Connection, type EdgeChange, type NodeDragEvent } from '@
 import type { CanvasDimensions, Edge, Node, NodeExtent } from '../interface/Flow.ts';
 import SpecialEdge from './SpecialEdge.vue';
 import SpecialNode from './SpecialNode.vue';
-import CustomConnectionLine from './CustomConnectionLine.vue';
 
 defineProps<{ nodes: Node[]; edges: Edge[]; boundary: CanvasDimensions; nodeExtent: NodeExtent; canvasStyle: CSSProperties }>();
 

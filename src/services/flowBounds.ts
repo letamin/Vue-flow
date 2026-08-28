@@ -1,5 +1,5 @@
 import type { Edge } from '../interface/Flow';
-import type { Point } from '../interface/OrthogonalRouter';
+import type { Point } from '../interface/SpecialEdge';
 
 export const BOUNDARY_PADDING = 24;
 export const DEFAULT_NODE_WIDTH = 150;
@@ -39,8 +39,8 @@ export const clampNodePosition = (
   };
 };
 
-export const clampEdgeHandles = (edges: Edge[], dimensions: { width: number; height: number }): Edge[] =>
-  edges.map((edge) => {
+export const clampEdgeHandles = (edges: Edge[], dimensions: { width: number; height: number }): Edge[] => {
+  return edges.map((edge) => {
     if (edge.type !== 'special' || !edge.data?.handles?.length) {
       return edge;
     }
@@ -54,3 +54,4 @@ export const clampEdgeHandles = (edges: Edge[], dimensions: { width: number; hei
       },
     };
   });
+};

@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import { EdgeLabelRenderer, type EdgeProps } from '@vue-flow/core';
-import type { OrthogonalEdgeData } from '../interface/OrthogonalRouter';
+import type { OrthogonalEdgeData } from '../interface/SpecialEdge';
 import { useSpecialEdge } from '../composables/useSpecialEdge';
 
 const props = defineProps<EdgeProps<OrthogonalEdgeData>>();

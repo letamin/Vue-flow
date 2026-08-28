@@ -1,9 +1,13 @@
-import { type Point } from '../interface/OrthogonalRouter';
+export interface Point {
+  x: number;
+  y: number;
+}
 
-export interface SegmentHandle extends Point {
-  segmentIndex: number;
-  direction: 'horizontal' | 'vertical';
-  moveAxis: 'x' | 'y';
+export interface OrthogonalEdgeData {
+  waypoints?: Point[];
+  clearance?: number;
+  normalizeRevision?: number;
+  handles?: Point[];
 }
 
 export interface SegmentDragState {
@@ -11,13 +15,6 @@ export interface SegmentDragState {
   originalRoute: Point[];
   currentCoordinate: number;
   moveAxis: 'x' | 'y';
-  pointerStart: Point;
-  hasMoved: boolean;
-}
-
-export interface WaypointDragState {
-  waypointIndex: number;
-  previewWaypoints: Point[];
   pointerStart: Point;
   hasMoved: boolean;
 }
